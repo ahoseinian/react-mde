@@ -5,15 +5,15 @@ import {
   GetIcon,
   PasteOptions,
   Suggestion,
-  ToolbarCommands
+  ToolbarCommands,
 } from "../types";
 import { Preview, Toolbar, TextArea, ToolbarButtonData } from ".";
 import { Tab } from "../types/Tab";
 import {
   getDefaultCommandMap,
-  getDefaultToolbarCommands
+  getDefaultToolbarCommands,
 } from "../commands/default-commands/defaults";
-import { Classes, L18n } from "..";
+import { Classes, L18n, TextApi } from "..";
 import { enL18n } from "../l18n/react-mde.en";
 import { SvgIcon } from "../icons";
 import { classNames } from "../util/ClassNames";
@@ -63,6 +63,8 @@ export interface ReactMdeProps {
     HTMLButtonElement,
     ButtonHTMLAttributes<HTMLButtonElement>
   >;
+
+  renderCustomCommands?: (textApi: TextApi) => React.ReactNode;
 }
 
 export interface ReactMdeState {
@@ -85,7 +87,7 @@ export class ReactMde extends React.Component<ReactMdeProps, ReactMdeState> {
   static defaultProps: Partial<ReactMdeProps> = {
     commands: getDefaultCommandMap(),
     toolbarCommands: getDefaultToolbarCommands(),
-    getIcon: name => <SvgIcon icon={name} />,
+    getIcon: (name) => <SvgIcon icon={name} />,
     readOnly: false,
     l18n: enL18n,
     minEditorHeight: 200,
@@ -93,7 +95,7 @@ export class ReactMde extends React.Component<ReactMdeProps, ReactMdeState> {
     minPreviewHeight: 200,
     selectedTab: "write",
     disablePreview: false,
-    suggestionTriggerCharacters: ["@"]
+    suggestionTriggerCharacters: ["@"],
   };
 
   constructor(props: ReactMdeProps) {
@@ -112,7 +114,7 @@ export class ReactMde extends React.Component<ReactMdeProps, ReactMdeState> {
       this.props.paste
     );
     this.state = {
-      editorHeight: props.initialEditorHeight ?? props.minEditorHeight
+      editorHeight: props.initialEditorHeight ?? props.minEditorHeight,
     };
   }
 
@@ -124,7 +126,7 @@ export class ReactMde extends React.Component<ReactMdeProps, ReactMdeState> {
   handleGripMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
     this.gripDrag = {
       originalHeight: this.state.editorHeight,
-      originalDragY: event.clientY
+      originalDragY: event.clientY,
     };
   };
 
@@ -146,7 +148,7 @@ export class ReactMde extends React.Component<ReactMdeProps, ReactMdeState> {
           ...this.state,
           editorHeight:
             this.gripDrag.originalHeight +
-            (event.clientY - this.gripDrag.originalDragY)
+            (event.clientY - this.gripDrag.originalDragY),
         });
       }
     }
@@ -194,20 +196,20 @@ export class ReactMde extends React.Component<ReactMdeProps, ReactMdeState> {
       generateMarkdownPreview,
       loadSuggestions,
       suggestionTriggerCharacters,
-      textAreaComponent
+      textAreaComponent,
     } = this.props;
 
     const finalChildProps = childProps || {};
 
-    const toolbarButtons = toolbarCommands.map(group => {
-      return group.map(commandName => {
+    const toolbarButtons = toolbarCommands.map((group) => {
+      return group.map((commandName) => {
         const command = this.commandOrchestrator.getCommand(commandName);
         return {
           commandName: commandName,
           buttonContent: command.icon
             ? command.icon(getIcon)
             : getIcon(commandName),
-          buttonProps: command.buttonProps
+          buttonProps: command.buttonProps,
         } as ToolbarButtonData;
       });
     });
@@ -232,6 +234,9 @@ export class ReactMde extends React.Component<ReactMdeProps, ReactMdeState> {
           buttonProps={finalChildProps.commandButtons}
           writeButtonProps={finalChildProps.writeButton}
           previewButtonProps={finalChildProps.previewButton}
+          customCommands={this.props.renderCustomCommands(
+            this.commandOrchestrator.getTextApi()
+          )}
         />
         <div className={classNames({ invisible: selectedTab !== "write" })}>
           <TextArea

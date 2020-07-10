@@ -4,7 +4,7 @@ import {
   CommandMap,
   PasteCommandContext,
   PasteOptions,
-  Selection
+  Selection,
 } from "../types";
 import { getDefaultCommandMap, L18n, TextApi, TextState } from "..";
 import { insertText } from "../util/InsertTextAtPosition";
@@ -43,13 +43,13 @@ export function getStateFromTextArea(textArea: HTMLTextAreaElement): TextState {
   return {
     selection: {
       start: textArea.selectionStart,
-      end: textArea.selectionEnd
+      end: textArea.selectionEnd,
     },
     text: textArea.value,
     selectedText: textArea.value.slice(
       textArea.selectionStart,
       textArea.selectionEnd
-    )
+    ),
   };
 }
 
@@ -104,7 +104,7 @@ export class CommandOrchestrator {
   ): boolean => {
     for (const commandName of this.keyActivatedCommands) {
       if (this.getCommand(commandName).handleKeyCommand(e)) {
-        this.executeCommand(commandName).then(r => {});
+        this.executeCommand(commandName).then((r) => {});
         return true;
       }
     }
@@ -129,7 +129,7 @@ export class CommandOrchestrator {
       initialState: getStateFromTextArea(this.textAreaRef.current),
       textApi: this.textApi,
       l18n: this.l18n,
-      context
+      context,
     });
     await result;
     this.isExecuting = false;
@@ -144,7 +144,7 @@ export class CommandOrchestrator {
         this.pasteOptions.command || getDefaultSaveImageCommandName(),
         {
           saveImage: this.pasteOptions.saveImage,
-          event: event
+          event: event,
         } as PasteCommandContext
       );
     }
@@ -156,5 +156,9 @@ export class CommandOrchestrator {
    */
   getCommandByName(name: string) {
     return this.commandMap[name];
+  }
+
+  getTextApi() {
+    return this.textApi;
   }
 }

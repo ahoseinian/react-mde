@@ -24,6 +24,7 @@ export interface ToolbarProps {
   writeButtonProps: ButtonChildProps;
   previewButtonProps: ButtonChildProps;
   buttonProps: ButtonChildProps;
+  customCommands: React.ReactNode;
 }
 
 export class Toolbar extends React.Component<ToolbarProps> {
@@ -45,7 +46,7 @@ export class Toolbar extends React.Component<ToolbarProps> {
       disablePreview,
       writeButtonProps,
       previewButtonProps,
-      buttonProps
+      buttonProps,
     } = this.props;
     if ((!buttons || buttons.length === 0) && !children) {
       return null;
@@ -91,6 +92,7 @@ export class Toolbar extends React.Component<ToolbarProps> {
             })}
           </ToolbarButtonGroup>
         ))}
+        {this.props.customCommands}
       </div>
     );
   }
